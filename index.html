@@ -49,15 +49,6 @@ body {
   align-items: center;
 }
 
-.lab-name {
-  margin: 0 0 7px;
-  color: var(--primary);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-}
-
 .lab-logo {
   display: block;
   width: 100%;
@@ -83,6 +74,8 @@ body {
   font-size: 1.06rem;
   line-height: 1.5;
 }
+
+.print-branding { display: none; }
 
 .workspace-grid {
   display: flex;
@@ -293,23 +286,50 @@ body {
 .age-lines > span { display: block; }
 .children-lines > span { display: block; }
 
-.activity-details { padding-top: 8px; border-top: 1px solid #c9ddd9; }
+.activity-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #c9ddd9;
+}
 
-.activity-details summary {
+.view-activity-button,
+.print-activity-button {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
   padding: 0 16px;
   border-radius: 12px;
-  background: var(--primary);
-  color: #fff;
   cursor: pointer;
+  font: inherit;
   font-weight: 700;
-  list-style: none;
 }
 
-.activity-details summary::-webkit-details-marker { display: none; }
-.activity-details[open] summary { background: var(--primary-dark); }
+.view-activity-button {
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+.view-activity-button:hover,
+.view-activity-button:focus { border-color: var(--primary-dark); background: var(--primary-dark); }
+
+.print-activity-button {
+  border: 1px solid var(--secondary-dark);
+  background: var(--secondary-dark);
+  color: #fff;
+}
+
+.print-activity-button:hover,
+.print-activity-button:focus {
+  border-color: var(--primary-dark);
+  background: var(--primary-dark);
+  color: #fff;
+}
+
+.activity-details { padding: 0; border: 0; }
+.activity-details__native-summary { display: none; }
 
 .activity-details__body {
   display: grid;
@@ -387,16 +407,34 @@ body {
   .results-header { display: block; }
   .results-header p { margin-top: 4px; }
   .activity-card { padding: 15px; }
-  .activity-details summary { width: 100%; justify-content: center; }
+  .activity-actions { display: grid; grid-template-columns: 1fr; }
+  .view-activity-button, .print-activity-button { width: 100%; justify-content: center; }
 }
 
 @media print {
   .app-shell { width: 100%; padding: 0; }
-  .app-header { padding-top: 0; }
   .workspace-grid { display: block; }
-  .filter-panel, .results-header, .activity-card__visual, .activity-details summary { display: none !important; }
+  .app-header, .filter-panel, .results-header, .activity-card__visual, .activity-actions, .activity-details__native-summary { display: none !important; }
+  .print-branding {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr) auto;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #c9ddd9;
+    color: var(--ink);
+    font-size: 9.5pt;
+    line-height: 1.35;
+  }
+  .print-branding img { display: block; width: 150px; height: auto; }
+  .print-branding div { display: flex; flex-direction: column; gap: 2px; }
+  .print-branding a { color: var(--ink); }
   .activity-grid { display: block; max-height: none; overflow: visible; padding: 0; }
-  .activity-card { margin-bottom: 18px; break-inside: avoid; page-break-inside: avoid; }
+  .activity-card { margin-bottom: 18px; break-inside: auto; page-break-inside: auto; }
+  .activity-facts > div,
+  .detail-section { break-inside: avoid; page-break-inside: avoid; }
+  body.print-single .activity-card:not(.print-target) { display: none !important; }
   .activity-details { border-top: 0; }
   .activity-details__body { padding-top: 0; }
 }
@@ -412,12 +450,25 @@ body {
         <div class="brand-row">
           <img src="images/lab_logo.png" class="lab-logo" alt="Child Health and Physical Activity Laboratory logo"/>
           <div class="title-block">
-            <p class="lab-name">Child Health and Physical Activity Lab</p>
             <h1>Activity Bank</h1>
             <p class="header-intro">Explore physical activity ideas/games shared by early childhood educators across Canada.</p>
           </div>
         </div>
       </header>
+      <section class="print-branding">
+        <img src="images/lab_logo.png" alt="Child Health and Physical Activity Laboratory logo"/>
+        <div>
+          <strong>Child Health &amp; Physical Activity Laboratory</strong>
+          <span>School of Occupational Therapy</span>
+          <span>Elborn College, Room 2577</span>
+          <span>Western University</span>
+          <span>London, Ontario, Canada N6A 5B9</span>
+        </div>
+        <div>
+          <a href="mailto:ttucker2@uwo.ca">ttucker2@uwo.ca</a>
+          <span>519-661-2111, ext. 88977</span>
+        </div>
+      </section>
       <div class="workspace-grid">
         <section class="filter-panel">
           <details class="resource-about">
@@ -427,22 +478,24 @@ body {
               <p>This resource brings together activities submitted by educators from across Canada—activities they enjoy leading and that children in their centres love to participate in. The collection includes ideas for children of different ages and abilities, with options for various group sizes, indoor and outdoor settings, seasons, durations, and equipment needs.</p>
               <p>
                 Use the filters below to find activities that suit the children in your care and the resources available to you. The Activity Bank can be accessed on a computer, tablet, or phone. To keep a copy of your selected activities, click 
-                <strong>“Print/Save as PDF.”</strong>
-                 Only activities matching your selected filters will be included, making it easy to create a customized collection that you can print or refer to later.
+                <strong>“Print/save selected activities as PDF.”</strong>
+                 Only activities matching your selected filters will be included, making it easy to create a customized collection that you can print or refer to later. You can also save an individual activity by selecting 
+                <strong>“Print/save activity as PDF”</strong>
+                 on its activity card.
               </p>
               <p>We recognize that age-group definitions vary across Canadian provinces and territories. To accommodate these differences and provide consistent categories within the Activity Bank, we define the age groups as follows:</p>
               <ul>
                 <li>
                   <strong>Infants: </strong>
-                  Birth to under 18 months
+                  Under 1.5 years
                 </li>
                 <li>
                   <strong>Toddlers: </strong>
-                  18 months to under 36 months (1.5 to under 3 years)
+                  1.5–2 years
                 </li>
                 <li>
                   <strong>Preschoolers: </strong>
-                  3–&lt;5 years
+                  3–4 years
                 </li>
                 <li>
                   <strong>School-age children: </strong>
@@ -483,7 +536,7 @@ body {
             </div>
             <div class="filter-actions">
               <button id="clear_filters" class="clear-button" type="button">Clear filters</button>
-              <button id="print_page" class="print-button" type="button">Print / Save as PDF</button>
+              <button id="print_page" class="print-button" type="button">Print/save selected activities as PDF</button>
             </div>
           </div>
           <div class="filter-grid">
@@ -496,15 +549,15 @@ body {
               <div class="multi-filter__menu">
                 <label class="multi-filter__option">
                   <input type="checkbox" value="infant"/>
-                  <span>Infants (less than 1.5 years)</span>
+                  <span>Infants (under 1.5 years)</span>
                 </label>
                 <label class="multi-filter__option">
                   <input type="checkbox" value="toddler"/>
-                  <span>Toddlers (1.5–&lt;3 years)</span>
+                  <span>Toddlers (1.5–2 years)</span>
                 </label>
                 <label class="multi-filter__option">
                   <input type="checkbox" value="preschool"/>
-                  <span>Preschoolers (3–&lt;5 years)</span>
+                  <span>Preschoolers (3–4 years)</span>
                 </label>
                 <label class="multi-filter__option">
                   <input type="checkbox" value="school_age"/>
@@ -679,8 +732,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -762,8 +819,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -842,8 +903,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -926,8 +991,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1006,8 +1075,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1088,8 +1161,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1171,8 +1248,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1255,8 +1336,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1338,8 +1423,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1421,8 +1510,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1501,8 +1594,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1586,8 +1683,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1669,8 +1770,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1751,8 +1856,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1833,8 +1942,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1913,8 +2026,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -1994,8 +2111,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2076,8 +2197,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2157,8 +2282,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2240,8 +2369,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2325,8 +2458,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2409,8 +2546,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2492,8 +2633,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2572,8 +2717,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2651,8 +2800,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2732,8 +2885,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2813,8 +2970,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2896,8 +3057,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -2978,8 +3143,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3059,8 +3228,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3139,8 +3312,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3220,8 +3397,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3300,8 +3481,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3383,8 +3568,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3467,8 +3656,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3547,8 +3740,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3630,8 +3827,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3709,8 +3910,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3790,8 +3995,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3871,8 +4080,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -3951,8 +4164,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4033,8 +4250,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4116,8 +4337,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4198,8 +4423,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4279,8 +4508,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4360,8 +4593,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4442,8 +4679,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4522,8 +4763,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4606,8 +4851,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4686,8 +4935,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4767,8 +5020,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4848,8 +5105,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -4932,8 +5193,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5012,8 +5277,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5093,8 +5362,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5174,8 +5447,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5256,8 +5533,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5335,8 +5616,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5419,8 +5704,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5499,8 +5788,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5579,8 +5872,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5659,8 +5956,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5739,8 +6040,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5822,8 +6127,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5904,8 +6213,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -5987,8 +6300,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6066,8 +6383,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6150,8 +6471,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6234,8 +6559,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6315,8 +6644,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6395,8 +6728,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6477,8 +6814,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6557,8 +6898,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6637,8 +6982,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6720,8 +7069,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6800,8 +7153,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6881,8 +7238,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -6963,8 +7324,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7042,8 +7407,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7124,8 +7493,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7205,8 +7578,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7284,8 +7661,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7365,8 +7746,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7446,8 +7831,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7526,8 +7915,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7607,8 +8000,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7688,8 +8085,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7768,8 +8169,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7850,8 +8255,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -7932,8 +8341,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8016,8 +8429,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8099,8 +8516,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8183,8 +8604,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8262,8 +8687,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8344,8 +8773,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8425,8 +8858,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8506,8 +8943,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8586,8 +9027,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8666,8 +9111,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8750,8 +9199,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8832,8 +9285,12 @@ body {
                   </dd>
                 </div>
               </dl>
+              <div class="activity-actions">
+                <button type="button" class="view-activity-button" aria-expanded="false">View activity</button>
+                <button type="button" class="print-activity-button">Print/save activity as PDF</button>
+              </div>
               <details class="activity-details">
-                <summary>View activity</summary>
+                <summary class="activity-details__native-summary">View activity</summary>
                 <div class="activity-details__body">
                   <section class="detail-section">
                     <h3>How it works</h3>
@@ -8919,9 +9376,32 @@ document.querySelectorAll('.multi-filter').forEach(filter => {
 });
 document.addEventListener('click', event => { if (!event.target.closest('.multi-filter')) document.querySelectorAll('.multi-filter').forEach(item => item.classList.remove('is-open')); });
 document.getElementById('clear_filters').addEventListener('click', () => { document.getElementById('search').value = ''; document.querySelectorAll('.multi-filter input').forEach(input => input.checked = false); document.querySelectorAll('.multi-filter').forEach(renderChips); applyFilters(); });
-document.getElementById('print_page').addEventListener('click', () => window.print());
+document.addEventListener('click', event => {
+  const viewButton = event.target.closest('.view-activity-button');
+  if (viewButton) {
+    const details = viewButton.closest('.activity-card').querySelector('details.activity-details');
+    details.open = !details.open;
+    viewButton.setAttribute('aria-expanded', String(details.open));
+    viewButton.textContent = details.open ? 'Hide activity' : 'View activity';
+  }
+  const printButton = event.target.closest('.print-activity-button');
+  if (printButton) {
+    document.body.classList.add('print-single');
+    printButton.closest('.activity-card').classList.add('print-target');
+    window.print();
+  }
+});
+document.getElementById('print_page').addEventListener('click', () => {
+  document.body.classList.remove('print-single');
+  document.querySelectorAll('.activity-card').forEach(card => card.classList.remove('print-target'));
+  window.print();
+});
 window.addEventListener('beforeprint', () => document.querySelectorAll('details.activity-details').forEach(item => { item.dataset.printWasOpen = item.open ? 'true' : 'false'; item.open = true; }));
-window.addEventListener('afterprint', () => document.querySelectorAll('details.activity-details').forEach(item => { item.open = item.dataset.printWasOpen === 'true'; }));
+window.addEventListener('afterprint', () => {
+  document.querySelectorAll('details.activity-details').forEach(item => { item.open = item.dataset.printWasOpen === 'true'; });
+  document.body.classList.remove('print-single');
+  document.querySelectorAll('.activity-card').forEach(card => card.classList.remove('print-target'));
+});
 </script>
   </body>
 </html>
