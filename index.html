@@ -503,7 +503,7 @@ body {
           <span>Western University</span>
           <span>London, Ontario, Canada N6A 5B9</span>
         </div>
-        <div>
+        <div class="print-contact">
           <a href="mailto:ttucker2@uwo.ca">ttucker2@uwo.ca</a>
           <span>519-661-2111, ext. 88977</span>
         </div>
@@ -558,13 +558,19 @@ body {
             </div>
           </details>
           <details class="resource-about resource-inclusive">
-            <summary>Supporting Inclusive Movement</summary>
+            <summary>Supporting inclusive movement</summary>
             <div class="resource-about__body">
               <p>We believe that all children should have opportunities to participate in movement and active play in childcare, including children with disabilities.</p>
-              <p>To help educators create inclusive movement opportunities, each activity in the Activity Library includes strategies and adaptations to support the participation of children with disabilities. These recommendations have been reviewed by Dr. Leah Taylor, Occupational Therapist, to help ensure they provide practical and appropriate options for adapting activities to meet children’s individual abilities and needs.</p>
+              <p>
+                To help educators create inclusive movement opportunities, each activity in the Activity Library includes strategies and adaptations to support the participation of children with disabilities. These recommendations have been reviewed by 
+                <strong>Dr. Leah Taylor</strong>
+                , Occupational Therapist, to help ensure they provide practical and appropriate options for adapting activities to meet children’s individual abilities and needs.
+              </p>
               <p>
                 For additional information and practical strategies for supporting children with disabilities to participate in movement and active play, please see 
-                <a href="https://9e0d7b0f-05c2-4c4b-ac25-ee180eab2bba.filesusr.com/ugd/2d9b52_79af2a8fdfae4b58a41577fee46f71ea.pdf" target="_blank" rel="noopener noreferrer">Dr. Taylor’s Early Movers Guide</a>
+                <a href="https://9e0d7b0f-05c2-4c4b-ac25-ee180eab2bba.filesusr.com/ugd/2d9b52_79af2a8fdfae4b58a41577fee46f71ea.pdf" target="_blank" rel="noopener noreferrer">
+                  <strong>Dr. Taylor’s Early Movers Guide</strong>
+                </a>
                 .
               </p>
             </div>
@@ -10418,6 +10424,7 @@ window.addEventListener('afterprint', () => {
         image.src = card.dataset.colouringSrc;
         const header = branding.cloneNode(true);
         header.classList.add('colouring-branding');
+        header.querySelector('.print-contact')?.remove();
         sheet.append(header, heading, image);
         root.append(sheet);
       });
